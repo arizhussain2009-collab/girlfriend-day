@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallery — Zikra 🌸</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Night sky body */
+    body { background: #0a0118; }
+    .bg-star { position:absolute; background:white; border-radius:50%; animation:twinkleBg ease-in-out infinite; }
+    @keyframes twinkleBg { 0%,100%{opacity:0.1;transform:scale(1)} 50%{opacity:0.8;transform:scale(1.5)} }
+    .shooting-star-bg { position:absolute; width:2px; height:2px; background:white; border-radius:50%; animation:shootBg linear infinite; }
+    @keyframes shootBg { 0%{transform:translate(0,0);opacity:1;box-shadow:10px 0 4px white,20px 0 6px rgba(255,255,255,0.4)} 100%{transform:translate(350px,220px);opacity:0} }
+    #meterScreen { background: #0a0118 !important; }
+    #galleryContent { position: relative; z-index: 1; }
+    .gallery-hero { background: rgba(243,232,255,0.08) !important; }
+    .gallery-hero h1, .gallery-hero p { color: #f9a8d4 !important; }
+
+    /* ===== METER EXPLOSION SCREEN ===== */
+    #meterScreen {
+      position: fixed;
+      inset: 0;
+      background: white;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: background 0.5s;
+    }
+    #meterScreen.exploded {
+      background: white;
+    }
+    .meter-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      color: #4a2060;
+      margin-bottom: 10px;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.3s forwards;
+    }
+    .meter-sub {
+      font-size: 0.95rem;
+      color: #7c3aed;
+      margin-bottom: 36px;
+      font-style: italic;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.6s forwards;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(16px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    /* The meter container */
+    .beauty-meter-container {
+      width: min(480px, 85vw);
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.9s forwards;
+    }
+    .beauty-meter-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #9333ea;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+    .beauty-meter-track {
+      width: 100%;
+      height: 44px;
+      background: #f3e8ff;
+      border-radius: 50px;
+      border: 3px solid #c084fc;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 0 0 0 rgba(236,72,153,0);
+    }
+    .beauty-meter-track.glow {
+      box-shadow: 0 0 24px rgba(236,72,153,0.6);
+      border-color: #ec4899;
+    }
+    .beauty-meter-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #f9a8d4, #c084fc, #ec4899, #fda4af);
+      background-size: 300% 100%;
+      border-radius: 50px;
+      transition: width 0.05s linear;
+      animation: shimmer 2s linear infinite;
+      position: relative;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+    .beauty-meter-fill::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0;
+      width: 16px; height: 100%;
+      background: white;
+      opacity: 0.4;
+      border-radius: 0 50px 50px 0;
+      animation: sparkle 0.6s ease-in-out infinite alternate;
+    }
+    @keyframes sparkle {
+      from { opacity: 0.4; }
+      to   { opacity: 0.8; }
+    }
+
+    .beauty-percent {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      color: #9333ea;
+      margin-top: 14px;
+      font-weight: 700;
+      min-height: 50px;
+    }
+
+    /* Warning flash */
+    .warning-flash {
+      display: none;
+      margin-top: 18px;
+      background: #fff0f6;
+      border: 2px solid #ec4899;
+      border-radius: 14px;
+      padding: 10px 24px;
+      font-weight: 800;
+      font-size: 1rem;
+      color: #ec4899;
+      letter-spacing: 1px;
+      animation: warningBlink 0.4s ease-in-out infinite;
+    }
+    @keyframes warningBlink {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(1.04); }
+    }
+
+    /* Pink liquid drips */
+    .drip-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10000;
+      overflow: hidden;
+      display: none;
+    }
+    .drip {
+      position: absolute;
+      top: -60px;
+      width: 28px;
+      border-radius: 0 0 50% 50%;
+      background: linear-gradient(180deg, #f9a8d4, #ec4899);
+      animation: dripFall linear forwards;
+    }
+    @keyframes dripFall {
+      0%   { transform: scaleX(1) translateY(0); opacity: 1; }
+      80%  { opacity: 1; }
+      100% { transform: scaleX(0.7) translateY(110vh); opacity: 0.6; }
+    }
+
+    /* Explosion burst */
+    .burst-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10001;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .burst-circle {
+      width: 10px; height: 10px;
+      background: #ec4899;
+      border-radius: 50%;
+      position: absolute;
+      animation: burstOut 0.8s ease-out forwards;
+    }
+    @keyframes burstOut {
+      0%   { transform: scale(0) translate(var(--tx), var(--ty)); opacity: 1; }
+      100% { transform: scale(3) translate(var(--tx), var(--ty)); opacity: 0; }
+    }
+
+    /* ===== GALLERY PAGE CONTENT ===== */
+    #galleryContent {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    #galleryContent.visible {
+      display: block;
+      opacity: 1;
+    }
+
+    .gallery-hero {
+      min-height: 50vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 40px 60px;
+      background: linear-gradient(160deg, #fff0f6 0%, #f3e8ff 50%, #fff7f0 100%);
+    }
+    .gallery-hero h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2.8rem, 8vw, 5.5rem);
+      color: #9333ea;
+      text-shadow: 0 0 30px rgba(192,132,252,0.3);
+      margin-bottom: 14px;
+    }
+    .gallery-hero p {
+      font-size: 1.1rem;
+      color: #7c3aed;
+      font-style: italic;
+    }
+
+    /* Grid */
+    .gallery-grid-section {
+      padding: 60px 40px;
+      background: linear-gradient(160deg, #fff0f6 0%, #ffffff 50%, #fce7f3 100%);
+    }
+    .gallery-grid-section h2 {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      color: #e11d48;
+      margin-bottom: 40px;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .gallery-item {
+      border-radius: 20px;
+      overflow: hidden;
+      background: #fce7f3;
+      box-shadow: 0 4px 24px rgba(192,132,252,0.2);
+      transition: transform 0.3s, box-shadow 0.3s;
+      animation: fadeUp 0.7s ease forwards;
+      opacity: 0;
+    }
+    .gallery-item:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 12px 40px rgba(192,132,252,0.35);
+    }
+    .gallery-item img,
+    .gallery-item video {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      display: block;
+    }
+    .gallery-item video {
+      cursor: pointer;
+    }
+    .gallery-caption {
+      padding: 14px 18px 18px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.92rem;
+      color: #4a2060;
+      line-height: 1.5;
+      font-style: italic;
+      text-align: center;
+    }
+    .gallery-caption .caption-date {
+      display: block;
+      font-size: 0.78rem;
+      color: #c084fc;
+      font-weight: 700;
+      font-style: normal;
+      margin-top: 4px;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Night Sky Background -->
+<div id="nightSkyBg" style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;"></div>
+
+<!-- Page Transition -->
+<div style="position:fixed;inset:0;background:linear-gradient(135deg,#2d1b3d,#ec4899);z-index:99998;pointer-events:none;transform:translateY(100%);transition:transform 0.5s cubic-bezier(0.76,0,0.24,1)" id="pageTransition"></div>
+
+<!-- Nav -->
+<nav>
+  <a href="index.html" class="nav-logo">Ariz 🖤 Zikra</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="gallery.html">Gallery</a></li>
+    <li><a href="letters.html">Letters</a></li>
+  </ul>
+</nav>
+
+<!-- Floating Petals -->
+<div class="petals-container" id="petals"></div>
+
+<!-- Drip Overlay -->
+<div class="drip-overlay" id="dripOverlay"></div>
+
+<!-- Burst Overlay -->
+<div class="burst-overlay" id="burstOverlay"></div>
+
+<!-- ===== METER SCREEN ===== -->
+<div id="meterScreen">
+  <p class="meter-title">🌸 Beauty Loading... 🌸</p>
+  <p class="meter-sub">Calculating Zikra's beauty. Please wait.</p>
+  <div class="beauty-meter-container">
+    <div class="beauty-meter-label">
+      <span>BEAUTY METER</span>
+      <span id="meterPct">0%</span>
+    </div>
+    <div class="beauty-meter-track" id="meterTrack">
+      <div class="beauty-meter-fill" id="meterFill"></div>
+    </div>
+    <div class="beauty-percent" id="bigPct">0%</div>
+    <div class="warning-flash" id="warningFlash">⚠️ OVERLOAD DETECTED ⚠️</div>
+  </div>
+</div>
+
+<!-- ===== GALLERY CONTENT ===== -->
+<div id="galleryContent">
+  <div class="gallery-hero">
+    <h1>Her 🌸</h1>
+    <p>Every photo is a whole feeling. Every frame is everything.</p>
+  </div>
+
+  <section class="gallery-grid-section">
+    <h2>Zikra 💕</h2>
+    <div class="gallery-grid" id="galleryGrid">
+
+      <!-- Photos -->
+      <div class="gallery-item" style="animation-delay:0.1s">
+        <img src="IMG-20260609-WA0003.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">My favourite view 🌸<span class="caption-date">Jun 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:0.2s">
+        <img src="IMG-20260609-WA0004.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">Can't stop staring at this one 💜<span class="caption-date">Jun 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:0.3s">
+        <img src="IMG-20260609-WA0005.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">Those eyes 🥺<span class="caption-date">Jun 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:0.4s">
+        <img src="IMG-20260609-WA0006.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">Bilkul perfect 💕<span class="caption-date">Jun 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:0.5s">
+        <img src="IMG-20260609-WA0009.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">Main baar baar dekhta hun 🌹<span class="caption-date">Jun 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:0.6s">
+        <img src="IMG-20260609-WA0011.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">Har photo mein alag hi lagti hai 💜<span class="caption-date">Jun 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:0.7s">
+        <img src="IMG-20260609-WA0012.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">Screen se nikal ke — okay nahi 😄🖤<span class="caption-date">Jun 2026</span></div>
+      </div>
+
+      <div class="gallery-item" style="animation-delay:0.9s">
+        <img src="IMG_20260609_002018_837.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">Woh aankhein 💜<span class="caption-date">Jun 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:1.0s">
+        <img src="IMG_20260607_214607_188.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">Cherry on the cake nahi — tu hi poori bakery hai 🥺<span class="caption-date">Jun 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:1.1s">
+        <img src="IMG_20260702_105012_134.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">Har din aur zyada 💕<span class="caption-date">Jul 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:1.2s">
+        <img src="IMG_20260710_232325_279.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">Tere haath 🥺🖤<span class="caption-date">Jul 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:1.3s">
+        <img src="IMG-20260712-WA0000.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">Latest and still my favourite 🌸<span class="caption-date">Jul 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:1.4s">
+        <img src="IMG-20260712-WA0001.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">Pighal jaata hun literally 💜<span class="caption-date">Jul 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:1.5s">
+        <img src="IMG-20260712-WA0002.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">Mere liye perfect hai 🖤<span class="caption-date">Jul 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:1.6s">
+        <img src="IMG-20260712-WA0003.jpg" alt="Zikra" loading="lazy" />
+        <div class="gallery-caption">Teri smile se duniya thodi better lagti hai 🌹<span class="caption-date">Jul 2026</span></div>
+      </div>
+
+      <!-- Videos -->
+      <div class="gallery-item" style="animation-delay:1.7s">
+        <video src="VID_20260522_071046_731.mp4" controls></video>
+        <div class="gallery-caption">Ek din dekha aur ab dekh nahi saka 💕<span class="caption-date">May 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:1.8s">
+        <video src="VID_20260607_100407_736.mp4" controls></video>
+        <div class="gallery-caption">Carried away as always 🥺<span class="caption-date">Jun 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:1.9s">
+        <video src="VID_20260607_101134_877.mp4" controls></video>
+        <div class="gallery-caption">Tu kuch karti hai aur mera din badal jaata hai 💜<span class="caption-date">Jun 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:2.0s">
+        <video src="VID-20260609-WA0016.mp4" controls></video>
+        <div class="gallery-caption">Woh awaaz 🎵🖤<span class="caption-date">Jun 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:2.1s">
+        <video src="VID_20260705_122637_685.mp4" controls></video>
+        <div class="gallery-caption">Har second mein aur fall karta hun 🌸<span class="caption-date">Jul 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:2.2s">
+        <video src="VID_20260706_073920_934.mp4" controls></video>
+        <div class="gallery-caption">Main sab notice karta hun. Har cheez. 💕<span class="caption-date">Jul 2026</span></div>
+      </div>
+      <div class="gallery-item" style="animation-delay:2.3s">
+        <video src="VID_20260712_103116_549.mp4" controls></video>
+        <div class="gallery-caption">Jaanu 🖤<span class="caption-date">Jul 2026</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer style="text-align:center; padding:40px; background:#2d1b3d; color:rgba(255,255,255,0.5); font-size:0.9rem;">
+    <p style="font-family:'Dancing Script',cursive; font-size:1.4rem; color:#f9a8d4; margin-bottom:8px;">Har photo mein tu hi hai, har frame mein tu 🖤</p>
+    <p>Ariz → Zikra | August 1, 2026</p>
+  </footer>
+</div>
+
+
+<script>
+  // Night sky
+  const nightBg = document.getElementById('nightSkyBg');
+  for (let i = 0; i < 100; i++) {
+    const s = document.createElement('div'); s.className = 'bg-star';
+    const sz = 0.8 + Math.random() * 2.5;
+    s.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*5}s;animation-delay:${Math.random()*6}s`;
+    nightBg.appendChild(s);
+  }
+  for (let i = 0; i < 5; i++) {
+    const ss = document.createElement('div'); ss.className = 'shooting-star-bg';
+    ss.style.cssText = `left:${Math.random()*60}%;top:${Math.random()*50}%;animation-duration:${4+Math.random()*6}s;animation-delay:${Math.random()*12}s`;
+    nightBg.appendChild(ss);
+  }
+
+  // ===== PETALS =====
+  const petalEmojis = ['🌸','🌹','🌷','💕','💜','✨'];
+  const pc = document.getElementById('petals');
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.textContent = petalEmojis[Math.floor(Math.random() * petalEmojis.length)];
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (6 + Math.random() * 8) + 's';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    p.style.fontSize = (0.9 + Math.random() * 1) + 'rem';
+    pc.appendChild(p);
+  }
+
+  // ===== BEAUTY METER ANIMATION =====
+  let pct = 0;
+  const fill = document.getElementById('meterFill');
+  const pctLabel = document.getElementById('meterPct');
+  const bigPct = document.getElementById('bigPct');
+  const warningFlash = document.getElementById('warningFlash');
+  const meterTrack = document.getElementById('meterTrack');
+
+  // Start filling after 1.4s
+  setTimeout(() => {
+    const interval = setInterval(() => {
+      pct += 1;
+      fill.style.width = Math.min(pct, 100) + '%';
+      pctLabel.textContent = pct + '%';
+      bigPct.textContent = pct + '%';
+
+      // Glow at 80%
+      if (pct === 80) {
+        meterTrack.classList.add('glow');
+      }
+
+      // Warning at 90%
+      if (pct === 90) {
+        warningFlash.style.display = 'block';
+        bigPct.style.color = '#ec4899';
+      }
+
+      // Shake at 95%
+      if (pct >= 95) {
+        document.getElementById('meterScreen').style.animation = 'meterShake 0.1s ease-in-out infinite';
+      }
+
+      if (pct >= 100) {
+        clearInterval(interval);
+        bigPct.textContent = '100%';
+        setTimeout(triggerExplosion, 400);
+      }
+    }, 28); // fills in ~2.8s
+  }, 1400);
+
+  // Inject shake keyframe
+  const style = document.createElement('style');
+  style.textContent = `@keyframes meterShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }`;
+  document.head.appendChild(style);
+
+  function triggerExplosion() {
+    // 1. Show burst particles
+    const burst = document.getElementById('burstOverlay');
+    burst.style.display = 'flex';
+    for (let i = 0; i < 24; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'burst-circle';
+      const angle = (i / 24) * 360;
+      const dist = 80 + Math.random() * 120;
+      const tx = Math.cos(angle * Math.PI / 180) * dist + 'px';
+      const ty = Math.sin(angle * Math.PI / 180) * dist + 'px';
+      dot.style.setProperty('--tx', tx);
+      dot.style.setProperty('--ty', ty);
+      const colors = ['#ec4899','#f9a8d4','#c084fc','#fda4af','#9333ea'];
+      dot.style.background = colors[Math.floor(Math.random() * colors.length)];
+      dot.style.width = dot.style.height = (6 + Math.random() * 14) + 'px';
+      burst.appendChild(dot);
+    }
+
+    // 2. Show drips
+    const dripOverlay = document.getElementById('dripOverlay');
+    dripOverlay.style.display = 'block';
+    for (let i = 0; i < 18; i++) {
+      const drip = document.createElement('div');
+      drip.className = 'drip';
+      drip.style.left = (Math.random() * 100) + 'vw';
+      drip.style.width = (16 + Math.random() * 22) + 'px';
+      const h = 80 + Math.random() * 160;
+      drip.style.height = h + 'px';
+      const dur = 1.2 + Math.random() * 1.2;
+      drip.style.animationDuration = dur + 's';
+      drip.style.animationDelay = (Math.random() * 0.6) + 's';
+      const pinkShades = ['#f9a8d4','#ec4899','#fda4af','#c084fc','#f472b6'];
+      drip.style.background = `linear-gradient(180deg, ${pinkShades[Math.floor(Math.random()*pinkShades.length)]}, #ec4899)`;
+      dripOverlay.appendChild(drip);
+    }
+
+    // 3. Flash white then fade meter screen out
+    setTimeout(() => {
+      document.getElementById('meterScreen').style.transition = 'opacity 0.8s ease';
+      document.getElementById('meterScreen').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('meterScreen').style.display = 'none';
+        dripOverlay.style.display = 'none';
+        burst.style.display = 'none';
+        // Show gallery
+        const gc = document.getElementById('galleryContent');
+        gc.style.display = 'block';
+        setTimeout(() => gc.style.opacity = '1', 50);
+      }, 900);
+    }, 1200);
+  }
+  // Page transitions
+  document.querySelectorAll('a[href]').forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('http')) return;
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const pt = document.getElementById('pageTransition');
+      pt.style.transform = 'translateY(0)';
+      setTimeout(() => window.location.href = href, 500);
+    });
+  });
+  window.addEventListener('load', () => {
+    const pt = document.getElementById('pageTransition');
+    pt.style.transform = 'translateY(-100%)';
+    setTimeout(() => pt.style.transform = 'translateY(100%)', 600);
+  });
+</script>

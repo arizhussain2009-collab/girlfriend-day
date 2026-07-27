@@ -1,0 +1,265 @@
+/* ============================================
+   ZIKRA'S WEBSITE — Global Styles
+   Pink / Purple / Rose / Dreamy
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;600;700&family=Dancing+Script:wght@600;700&display=swap');
+
+:root {
+  --pink: #f9a8d4;
+  --pink-light: #fce7f3;
+  --pink-deep: #ec4899;
+  --purple: #c084fc;
+  --purple-deep: #9333ea;
+  --purple-light: #f3e8ff;
+  --rose: #fda4af;
+  --rose-deep: #e11d48;
+  --cream: #fff7f0;
+  --white: #ffffff;
+  --dark: #2d1b3d;
+  --text: #4a2060;
+  --text-light: #7c3aed;
+  --shadow: rgba(192, 132, 252, 0.3);
+  --glow: 0 0 20px rgba(249, 168, 212, 0.6);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--pink-light); }
+::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 10px; }
+
+/* ---- Floating Petals ---- */
+.petals-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  top: -50px;
+  font-size: 1.4rem;
+  animation: fall linear infinite;
+  opacity: 0.7;
+  user-select: none;
+}
+
+@keyframes fall {
+  0%   { transform: translateY(-50px) rotate(0deg); opacity: 0.8; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
+
+/* ---- Navigation ---- */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: rgba(255, 247, 240, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--pink);
+  padding: 14px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  font-family: 'Dancing Script', cursive;
+  font-size: 1.6rem;
+  color: var(--purple-deep);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: color 0.3s;
+  letter-spacing: 0.5px;
+}
+
+.nav-links a:hover {
+  color: var(--purple-deep);
+}
+
+/* ---- Section Base ---- */
+section {
+  position: relative;
+  z-index: 1;
+  padding: 80px 40px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* ---- Headings ---- */
+h1, h2, h3 {
+  font-family: 'Playfair Display', serif;
+}
+
+h1 {
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  color: var(--purple-deep);
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  color: var(--rose-deep);
+  margin-bottom: 20px;
+}
+
+h3 {
+  font-size: 1.3rem;
+  color: var(--purple-deep);
+}
+
+p {
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: var(--text);
+}
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-block;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+}
+
+.btn-pink {
+  background: linear-gradient(135deg, var(--pink-deep), var(--purple-deep));
+  color: white;
+  box-shadow: 0 4px 20px var(--shadow);
+}
+
+.btn-pink:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 8px 30px var(--shadow);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--purple-deep);
+  color: var(--purple-deep);
+}
+
+.btn-outline:hover {
+  background: var(--purple-deep);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* ---- Cards ---- */
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 36px;
+  box-shadow: 0 4px 30px var(--shadow);
+  border: 1px solid var(--pink-light);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px var(--shadow);
+}
+
+/* ---- Divider ---- */
+.divider {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 1.5rem;
+  letter-spacing: 8px;
+  color: var(--pink-deep);
+  opacity: 0.6;
+}
+
+/* ---- Page Hero ---- */
+.page-hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 40px 80px;
+  background: linear-gradient(160deg, #fff0f6 0%, #f3e8ff 50%, #fff7f0 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.page-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle at 30% 40%, rgba(249,168,212,0.2) 0%, transparent 50%),
+              radial-gradient(circle at 70% 60%, rgba(192,132,252,0.15) 0%, transparent 50%);
+  animation: bgpulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes bgpulse {
+  0%   { transform: scale(1); }
+  100% { transform: scale(1.1); }
+}
+
+/* ---- Fade In Animations ---- */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---- Glow Text ---- */
+.glow-text {
+  text-shadow: 0 0 20px rgba(236, 72, 153, 0.4), 0 0 40px rgba(192, 132, 252, 0.2);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  nav { padding: 12px 20px; }
+  .nav-links { gap: 16px; }
+  section { padding: 60px 20px; }
+  .page-hero { padding: 100px 20px 60px; }
+}
